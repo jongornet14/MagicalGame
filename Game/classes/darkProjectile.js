@@ -26,6 +26,12 @@ class DarkProjectile {
     this.projectileTimeLimit = 50;
     this.projectileTime = 0;
 
+    // Initialize collision boundaries to safe values
+    this.leftSide = 0;
+    this.rightSide = 0;
+    this.topSide = 0;
+    this.bottomSide = 0;
+
   }
 
   setProjectile(x,y,direction) {
@@ -40,11 +46,14 @@ class DarkProjectile {
       this.direction = direction;
 
       //Movement
-
       if(this.direction == 'W') { this.xSpeed = -3; }
       if(this.direction == 'E') { this.xSpeed = 3; }
 
-      console.log(this.xSpeed);
+      // Initialize collision boundaries when projectile is set
+      this.leftSide = this.xPos - (this.size / 2);
+      this.rightSide = this.xPos + (this.size / 2);
+      this.topSide = this.yPos - (this.size / 2);
+      this.bottomSide = this.yPos + (this.size / 2);
 
       this.inDisplay = true;
 
@@ -100,8 +109,13 @@ class DarkProjectile {
 
   //display projectile
   display() {
-
     if(this.inDisplay) {
+      // Update collision boundaries
+      this.leftSide = this.xPos - (this.size / 2);
+      this.rightSide = this.xPos + (this.size / 2);
+      this.topSide = this.yPos - (this.size / 2);
+      this.bottomSide = this.yPos + (this.size / 2);
+
       this.move();
       this.checkPosition();
     }

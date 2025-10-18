@@ -115,12 +115,14 @@ class Soldier {
 
   //move monster
   movePosition() {
-
+    // Always engage player for more aggressive gameplay
+    this.engagePlayer = true;
+    
     if(this.engagePlayer) {
       if (this.xPos > this.character.xPos) { this.moveLeft(); }
       if (this.xPos < this.character.xPos) { this.moveRight(); }
-      if (this.yPos < this.character.yPos) { this.moveUp(); }
-      if (this.yPos > this.character.yPos) { this.moveDown(); }
+      if (this.yPos < this.character.yPos) { this.moveDown(); }
+      if (this.yPos > this.character.yPos) { this.moveUp(); }
     }
     else {
       this.manuever();
@@ -176,23 +178,23 @@ class Soldier {
       }
     }
 
-    //nightmare monster
+    //nightmare monster - make Dark enemies less aggressive
     if(this.version == 'Dark') {
+      
+      // Only fire if aligned with character Y position (like other enemies)
+      if( this.yPos > this.character.topSide  && this.yPos < this.character.bottomSide ) {
+        
+        if( this.character.xPos < this.xPos && this.direction == 'W' ) {
+          // Fire fewer projectiles to balance difficulty
+          this.projectiles[0].setProjectile(this.xPos,this.yPos,this.direction);
+          this.projectiles[1].setProjectile(this.xPos,this.yPos,this.direction);
+        }
 
-      if( this.character.xPos < this.xPos && this.direction == 'W' ) {
-
-        this.projectiles[0].setProjectile(this.xPos,this.yPos,this.direction);
-        this.projectiles[1].setProjectile(this.xPos,this.yPos,this.direction);
-        this.projectiles[2].setProjectile(this.xPos,this.yPos,this.direction);
-
-      }
-
-      if( this.character.xPos > this.xPos && this.direction == 'E' ) {
-
-        this.projectiles[0].setProjectile(this.xPos,this.yPos,this.direction);
-        this.projectiles[1].setProjectile(this.xPos,this.yPos,this.direction);
-        this.projectiles[2].setProjectile(this.xPos,this.yPos,this.direction);
-
+        if( this.character.xPos > this.xPos && this.direction == 'E' ) {
+          // Fire fewer projectiles to balance difficulty
+          this.projectiles[0].setProjectile(this.xPos,this.yPos,this.direction);
+          this.projectiles[1].setProjectile(this.xPos,this.yPos,this.direction);
+        }
       }
     }
   }

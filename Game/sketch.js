@@ -56,7 +56,16 @@ function preload() {
 function setup() {
 
   //create Canvas
-  createCanvas(1000,500);
+  var canvas = createCanvas(1000,500);
+  
+  // Make canvas focusable for keyboard input (old p5.js compatibility)
+  canvas.elt.tabIndex = 0;
+  canvas.elt.focus();
+  
+  // Add event listeners for older browser compatibility
+  canvas.elt.addEventListener('click', function() {
+    canvas.elt.focus();
+  });
 
   //take out strokes for background
   noStroke();
@@ -73,4 +82,23 @@ function draw() {
   //start game from pause screen
   pauseScreen.display();
 
+}
+
+// Add p5.js event handlers for better keyboard support in old version
+function keyPressed() {
+  console.log('Key pressed:', key, 'KeyCode:', keyCode);
+  // Make sure canvas has focus
+  var canvasElt = document.querySelector('canvas');
+  if (canvasElt) {
+    canvasElt.focus();
+  }
+  return false; // prevent default behavior
+}
+
+function mousePressed() {
+  // Focus canvas when clicked for keyboard input
+  var canvasElt = document.querySelector('canvas');
+  if (canvasElt) {
+    canvasElt.focus();
+  }
 }

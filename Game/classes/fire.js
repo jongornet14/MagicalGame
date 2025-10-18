@@ -25,6 +25,12 @@ class Fire {
     this.inDisplay = true;
     this.fireRadius = 100;
 
+    // Initialize collision boundaries
+    this.leftSide = this.xPos - (this.size / 2);
+    this.rightSide = this.xPos + (this.size / 2);
+    this.topSide = this.yPos - (this.size / 2);
+    this.bottomSide = this.yPos + (this.size / 2);
+
   }
 
   //move fire
@@ -61,10 +67,16 @@ class Fire {
 
   //display
   display() {
+    if (this.inDisplay) {
+      // Update collision boundaries
+      this.leftSide = this.xPos - (this.size / 2);
+      this.rightSide = this.xPos + (this.size / 2);
+      this.topSide = this.yPos - (this.size / 2);
+      this.bottomSide = this.yPos + (this.size / 2);
 
-    this.move();
-    this.checkPosition();
-
+      this.move();
+      this.checkPosition();
+    }
   }
 
 }

@@ -35,6 +35,10 @@ class Character {
     this.magicMeter = this.magicLimit;
 
     this.health = 100;
+    
+    // Damage cooldown to prevent rapid damage
+    this.damageCooldown = 0;
+    this.damageCooldownLimit = 30; // 30 frames of invincibility after taking damage
 
     //weapons
 
@@ -178,12 +182,27 @@ class Character {
 
   //check if time is stopped
   checkTime() {
-
     if(this.timeLimit > 0) {
       this.timeIsStopped = true;
-      fill(255);
-      textSize(50);
-      text(parseInt(this.timeLimit / 100), width - 50,50);
+      
+      // Time stop visual effect
+      fill(135, 206, 250, 50);
+      rect(0, 0, width, height);
+      
+      // Time stop indicator
+      stroke(255, 255, 255);
+      strokeWeight(3);
+      fill(0, 0, 0, 150);
+      rect(width - 120, 70, 100, 40);
+      
+      noStroke();
+      fill(255, 255, 255);
+      textAlign(CENTER);
+      textSize(16);
+      text('TIME STOP', width - 70, 85);
+      textSize(20);
+      text(parseInt(this.timeLimit / 100), width - 70, 105);
+      
       this.timeLimit--;
     }
     else {
@@ -244,11 +263,21 @@ class Character {
 
   //check if time is changed periods
   checkChangedTime() {
-
     if(this.futureTime > 0) {
-      fill(255);
-      textSize(50);
-      text(parseInt(this.futureTime / 100), width - 100,50);
+      // Future time indicator
+      stroke(138, 43, 226);
+      strokeWeight(3);
+      fill(0, 0, 0, 150);
+      rect(width - 200, 70, 180, 40);
+      
+      noStroke();
+      fill(138, 43, 226);
+      textAlign(CENTER);
+      textSize(16);
+      text('FUTURE TIME', width - 110, 85);
+      textSize(20);
+      text(parseInt(this.futureTime / 100), width - 110, 105);
+      
       this.futureTime--;
       if(this.futureTime == 1){ this.changeTimelinesSound.play(); }
     }
@@ -269,32 +298,83 @@ class Character {
 
   //health
   deductHealth() {
-    this.health -= 10;
+    // Only take damage if not in cooldown period
+    if (this.damageCooldown <= 0) {
+      console.log('Character took damage! Health before:', this.health);
+      this.health -= 10;
+      console.log('Health after:', this.health);
+      this.damageCooldown = this.damageCooldownLimit; // Start cooldown
+    } else {
+      console.log('Damage blocked by cooldown');
+    }
   }
 
   checkHealth() {
     if(this.health <= 0) {
+      console.log('Character died due to health reaching 0');
       this.isAlive = false;
     }
   }
 
   //display function
   displayMeters() {
-
     textAlign(LEFT);
-
-    fill('green');
-    rect(50,50,this.magicMeter,20);
+    
+    // Magic Meter with border and gradient
+    stroke(255);
+    strokeWeight(2);
+    fill(0, 0, 0, 150);
+    rect(45, 45, 260, 30);
+    
+    noStroke();
+    // Magic meter gradient
+    for (var i = 0; i < this.magicMeter; i++) {
+      var inter = map(i, 0, this.magicLimit, 0, 1);
+      var c = lerpColor(color(255, 0, 255), color(0, 255, 255), inter);
+      fill(c);
+      rect(50 + i, 50, 1, 20);
+    }
+    
     fill(255);
-    textSize(10)
-    text('Magic Meter', 55, 65);
-
-    fill('blue');
-    rect(50,75,this.health,20);
+    textSize(12);
+    text('Magic: ' + int(this.magicMeter) + '/' + this.magicLimit, 55, 65);
+    
+    // Health Meter with border and gradient
+    stroke(255);
+    strokeWeight(2);
+    fill(0, 0, 0, 150);
+    rect(45, 80, 110, 30);
+    
+    noStroke();
+    // Health meter gradient
+    for (var i = 0; i < this.health; i++) {
+      var inter = map(i, 0, 100, 0, 1);
+      var c = lerpColor(color(255, 0, 0), color(0, 255, 0), inter);
+      fill(c);
+      rect(50 + i, 85, 1, 20);
+    }
+    
     fill(255);
-    textSize(10)
-    text('Health Meter', 55, 90);
-
+    textSize(12);
+    text('Health: ' + int(this.health) + '/100', 55, 100);
+    
+    // Time Period Indicator
+    stroke(255, 215, 0);
+    strokeWeight(3);
+    fill(0, 0, 0, 150);
+    rect(width - 200, 20, 180, 40);
+    
+    noStroke();
+    fill(255, 215, 0);
+    textAlign(CENTER);
+    textSize(16);
+    if (this.inPresent) {
+      text('PRESENT ERA', width - 110, 45);
+    } else {
+      text('FUTURE ERA', width - 110, 45);
+    }
+    
+    textAlign(LEFT);
   }
 
   //show projectiles
@@ -309,6 +389,10 @@ class Character {
 
   //full display
   display() {
+    // Update damage cooldown
+    if (this.damageCooldown > 0) {
+      this.damageCooldown--;
+    }
 
     this.checkHealth();
 
@@ -327,8 +411,16 @@ class Character {
       if(this.direction == 'E') { this.currentImage = this.imageRight; }
 
       imageMode(CENTER)
+      
+      // Flash when taking damage (invincibility frames)
+      if (this.damageCooldown > 0 && this.damageCooldown % 6 < 3) {
+        tint(255, 100, 100); // Red tint when invincible
+      } else {
+        noTint();
+      }
 
       image(this.currentImage,this.xPos, this.yPos, this.sizeX, this.sizeY);
+      noTint(); // Reset tint
       this.displayMeters();
       this.movePosition();
       this.useAttacks();
@@ -336,17 +428,29 @@ class Character {
     }
 
     else {
-
-      textSize(30);
-      fill(0);
+      // Death screen overlay
+      fill(255, 0, 0, 100);
+      rect(0, 0, width, height);
+      
+      // Death box
+      fill(0, 0, 0, 200);
+      stroke(255, 0, 0);
+      strokeWeight(3);
+      rect(width/2 - 200, height/2 - 100, 400, 200);
+      
+      noStroke();
+      fill(255, 0, 0);
+      textSize(36);
       textAlign(CENTER);
-      text('You died!', width / 2, height / 2);
-      text('Press ENTER to try again', width / 2, height / 2 + 40);
+      text('YOU DIED!', width / 2, height / 2 - 20);
+      
+      fill(255);
+      textSize(18);
+      text('The magical forces were too strong...', width / 2, height / 2 + 20);
+      text('Press ENTER to try again', width / 2, height / 2 + 50);
 
       if(keyIsDown(13)) {
-        //Alive
         this.restart = true;
-
       }
     }
 

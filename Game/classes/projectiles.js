@@ -15,6 +15,12 @@ class Projectiles {
     //size
     this.size = 5;
 
+    // Initialize collision boundaries
+    this.leftSide = this.xPos - (this.size / 2);
+    this.rightSide = this.xPos + (this.size / 2);
+    this.topSide = this.yPos - (this.size / 2);
+    this.bottomSide = this.yPos + (this.size / 2);
+
     this.inDisplay = true;
 
   }
@@ -48,13 +54,19 @@ class Projectiles {
 
   //display object
   display() {
+    if (this.inDisplay) {
+      fill(random(0.5,1)*255,random(0.5,1)*255,0);
+      ellipse(this.xPos,this.yPos,this.size,this.size);
 
-    fill(random(0.5,1)*255,random(0.5,1)*255,0);
-    ellipse(this.xPos,this.yPos,this.size,this.size);
+      // Update collision boundaries
+      this.leftSide = this.xPos - (this.size / 2);
+      this.rightSide = this.xPos + (this.size / 2);
+      this.topSide = this.yPos - (this.size / 2);
+      this.bottomSide = this.yPos + (this.size / 2);
 
-    this.move();
-    this.checkPosition();
-
+      this.move();
+      this.checkPosition();
+    }
   }
 
 }
